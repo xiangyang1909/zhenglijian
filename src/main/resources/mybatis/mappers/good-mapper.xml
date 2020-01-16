@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.situ.dami.good.dao.GoodDao">
+         <!-- 路径一定要改好                good 这个包名   GoodDao这个类名 -->
+  
+   <sql id="good_base">
+    GOOD_ID,GOOD_NAME,GOOD_NUMBER,GOOD_PICTURE,GOOD_PRICE,GOOD_AMOUNT,GOOD_STATE,GOOD_INFO,ACTIVE_FLAG,CREATE_BY,CREATE_DATE,UPDATE_BY,UPDATE_DATE
+   </sql>
+  
+  <!-- 后台增加  -->
+     <insert id="saveGood" parameterType="Good" useGeneratedKeys="true" keyColumn="GD_ID" keyProperty="gdId">
+		INSERT INTO TB_GOOD (<include refid="good_base"/>)VALUES(#{goodId},#{goodName},#{goodNumber},#{goodPicture},#{goodPrice},#{goodAmount},#{goodState},#{goodInfo},#{activeFlag},#{createBy},#{createDate},#{updateBy},#{updateDate})
+	</insert>
+  
+  <select id="find" resultType="Good">
+		SELECT GD_ID,<include refid="good_base" />FROM TB_GOOD WHERE ACTIVE_FLAG = 1 
+	</select>
+  
+  <!-- 这个看起来是查询，  但是他是以 前台  修改 过来数据时， 到了mapper进行 数据查询回去， 对应controller层调用service层的getrowId方法,service层调用Dao层的get方法， 继而在mapper中成了先查询， 然后脚本调用 1.修改、2.查询 -->
+	<select id="get" resultType="Good">
+		SELECT GD_ID,<include refid="good_base" />FROM TB_GOOD WHERE  ACTIVE_FLAG = 1 AND GD_ID = #{gdId}	
+	</select>
+  
+  
+  <!-- 这就是逻辑删除，前边的方法执行的是 删除，  但到了 mapper文件我们执行的是  update 修改标签 -->
+	<update id="delete" parameterType="Good">
+	  UPDATE TB_GOOD SET ACTIVE_FLAG = 0 WHERE GD_ID = #{gdId}
+	</update>
+  
+  <!-- 改 -->
+     <update id="update" parameterType="Good">
+		UPDATE TB_GOOD 
+		<set>
+			<if test="goodId!=null">
+				GOOD_ID = #{goodId},
+			</if>
+			<if test="goodName!=null">
+				GOOD_NAME = #{goodName},
+			</if>
+			<if test="goodNumber!=null">
+				GOOD_NUMBER = #{goodNumber},
+			</if>
+			<if test="goodPicture!=null">
+				GOOD_PICTURE = #{goodPicture},
+			</if>
+			<if test="goodPrice!=null">
+				GOOD_PRICE = #{goodPrice},
+			</if>
+			<if test="goodAmount!=null">
+				GOOD_AMOUNT = #{goodAmount},
+			</if>
+			<if test="goodState!=null">
+				GOOD_STATE = #{goodState},
+			</if>
+			<if test="goodInfo!=null">
+				GOOD_INFO = #{goodInfo},
+			</if>
+			<if test="updateBy!=null">
+				UPDATE_BY = #{updateBy},
+			</if>
+			<if test="updateDate!=null">
+				UPDATE_DATE = #{updateDate},
+			</if>
+		</set>
+		WHERE GD_ID = #{gdId}
+	</update>
+  
+  
+  </mapper>

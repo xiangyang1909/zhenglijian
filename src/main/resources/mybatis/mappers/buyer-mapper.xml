@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  
+  <!-- 在我看来，dao层的BuyerDao 是一个接口， 而我们的mapper 的 buyer-mapper.xml 就是一个接口的实现类 -->
+  <!-- 如下，mapper开始扫描调用 com.situ.dami.buyer.dao.BuyerDao 这个接口-->
+  <!-- 因为我们的dao层，本来就是往数据库里写的，所以mapper  就写SQL语句的  增 删 改 查 -->
+  <!-- mapper 里面 还会有具体的增删改查   比如id 等等 -->
+<mapper namespace="com.situ.dami.buyer.dao.BuyerDao">
+
+
+    <!--这个ID是自己在这里定义的，只要id唯一就可以      这是表头表尾巴的那种思想，共有属性-->
+    <sql id="buyer_base">
+    BUYER_TYPE,BUYER_NAME,BUYER_CODE,BUYER_PASS,BUYER_PHONE,BUYER_LOCKING,ACTIVE_FLAG,CREATE_BY,CREATE_DATE,UPDATE_BY,UPDATE_DATE
+    </sql>
+
+     <!--增加  -->
+     <insert id="save" parameterType="Buyer" useGeneratedKeys="true" keyColumn="ROW_ID" keyProperty="rowId">
+      <!--parameterType="Buyer" 对应domian的Buyer类中@Alias("Buyer")  keyColumn="ROW_ID"对应数据库ID   keyProperty="rowId"对应dao层的rowId-->
+		INSERT INTO BUYER (<include refid="buyer_base"/>)VALUES(#{buyerType},#{buyerName},#{buyerCode},#{buyerPass},#{buyerPhone},#{buyerLocking},#{activeFlag},#{createBy},#{createDate},#{updateBy},#{updateDate})
+		<!-- 蒋：sql的id要唯一，在这里的 <include refid="buyer_base"> 要对应！把上边拼下来的-->
+	</insert>
+
+  <!-- 后台增加  -->
+     <insert id="saveA" parameterType="Buyer" useGeneratedKeys="true" keyColumn="ROW_ID" keyProperty="rowId">
+		INSERT INTO BUYER (<include refid="buyer_base"/>)VALUES(#{buyerType},#{buyerName},#{buyerCode},#{buyerPass},#{buyerPhone},#{buyerLocking},#{activeFlag},#{createBy},#{createDate},#{updateBy},#{updateDate})
+	</insert>
+
+    <!-- 改 -->
+     <update id="update" parameterType="Buyer">
+		UPDATE BUYER 
+		<set>
+			<if test="buyerName!=null">
+				BUYER_NAME = #{buyerName},
+			</if>
+			<if test="buyerCode!=null">
+				BUYER_CODE = #{buyerCode},
+			</if>
+			<if test="buyerPass!=null">
+				BUYER_PASS = #{buyerPass},
+			</if>
+			<if test="buyerPhone!=null">
+				BUYER_PHONE = #{buyerPhone},
+			</if>
+			<if test="updateBy!=null">
+				UPDATE_BY = #{updateBy},
+			</if>
+			<if test="updateDate!=null">
+				UPDATE_DATE = #{updateDate},
+			</if>
+		</set>
+		WHERE ROW_ID = #{rowId}
+	</update>
+	
+	<!-- 这就是逻辑删除，前边的方法执行的是 删除，  但到了 mapper文件我们执行的是  update 修改标签 -->
+	<update id="delete" parameterType="Buyer">
+	  UPDATE BUYER SET ACTIVE_FLAG = 0 WHERE ROW_ID = #{rowId}
+	</update>
+	
+	<!-- 删   删除就是  物理删除， 一般不用物理删除   PingBi屏蔽了这个-->
+	<delete id="deletePingBi">
+		<!-- DELETE FROM  BUYER WHERE ROW_ID = #{rowId} -->
+		DELETE FROM  BUYER WHERE ROW_ID = #{rowId}
+	</delete>
+	
+	
+	<!-- 登录的查询   id跟 Dao层BuyerDao  定义的  方法名称 一样 -->
+	<select id="getBynameAndPass" resultType="Buyer">
+		SELECT <include refid="buyer_base" /> FROM BUYER WHERE ACTIVE_FLAG = 1
+		AND BUYER_NAME = #{buyerName} AND BUYER_PASS = #{buyerPass} AND BUYER_TYPE =0
+			</select>
+	
+	<!-- 登录的查询   id跟 Dao层BuyerDao  定义的  方法名称 一样 -->
+	<select id="getAnameAndPass" resultType="Buyer">
+		SELECT <include refid="buyer_base" /> FROM BUYER WHERE ACTIVE_FLAG = 1
+		AND BUYER_NAME = #{buyerName} AND BUYER_PASS = #{buyerPass} AND BUYER_TYPE =1
+			</select>
+	<!-- 这个看起来是查询，  但是他是以 前台  修改 过来数据时， 到了mapper进行 数据查询回去， 对应controller层调用service层的getrowId方法,service层调用Dao层的get方法， 继而在mapper中成了先查询， 然后脚本调用 1.修改、2.查询 -->
+	<select id="get" resultType="Buyer">
+		SELECT ROW_ID,<include refid="buyer_base" />FROM BUYER WHERE  ACTIVE_FLAG = 1 AND ROW_ID = #{rowId} AND BUYER_TYPE =0
+		
+	</select>
+
+	<select id="find" resultType="Buyer">
+		SELECT ROW_ID,<include refid="buyer_base" />FROM BUYER WHERE ACTIVE_FLAG = 1 AND BUYER_TYPE =0
+		<!-- 记得加  ， 号 -->
+	</select>
+
+	<select id="getByName" resultType="Buyer">
+		<include refid="buyer_base" />
+		AND BUYER_NAME = #{buyerName}
+	</select>
+
+	<select id="findByPage" resultType="Buyer">
+		<include refid="buyer_base" />
+		LIMIT #{firstResult},#{maxResults}
+	</select>
+
+
+</mapper>

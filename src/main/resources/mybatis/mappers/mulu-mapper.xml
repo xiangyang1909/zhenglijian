@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.situ.dami.mulu.dao.MuluDao">
+  
+  <sql id="mulu_base">
+    PARENT_ID,MULU_NAME,MULU_INFO,ACTIVE_FLAG,CREATE_BY,CREATE_DATE,UPDATE_BY,UPDATE_DATE
+    </sql>
+    
+     <!-- 后台增加  -->
+     <insert id="save" parameterType="Mulu" useGeneratedKeys="true" keyColumn="ROW_ID" keyProperty="rowId">
+		INSERT INTO TB_MULU (<include refid="mulu_base"/>)VALUES(#{parentId},#{muluName},#{muluInfo},#{activeFlag},#{createBy},#{createDate},#{updateBy},#{updateDate})
+	</insert>
+   
+   <select id="find" resultType="Mulu">
+		SELECT ROW_ID,<include refid="mulu_base" />FROM TB_MULU WHERE ACTIVE_FLAG = 1 
+		<!-- 记得加  ， 号 -->
+	</select>
+   
+   <!-- 改 -->
+     <update id="update" parameterType="Mulu">
+		UPDATE TB_MULU 
+		<set>
+			<if test="parentId!=null">
+				PARENT_ID = #{parentId},
+			</if>
+			<if test="muluName!=null">
+				MULU_NAME = #{muluName},
+			</if>
+			
+			<if test="muluInfo!=null">
+				MULU_INFO = #{muluInfo},
+			</if>
+			<if test="updateBy!=null">
+				UPDATE_BY = #{updateBy},
+			</if>
+			<if test="updateDate!=null">
+				UPDATE_DATE = #{updateDate},
+			</if>
+		</set>
+		WHERE ROW_ID = #{rowId}
+	</update>
+   
+   <!-- 这个看起来是查询，  但是他是以 前台  修改 过来数据时， 到了mapper进行 数据查询回去， 对应controller层调用service层的getrowId方法,service层调用Dao层的get方法， 继而在mapper中成了先查询， 然后脚本调用 1.修改、2.查询 -->
+	<select id="get" resultType="Mulu">
+		SELECT ROW_ID,<include refid="mulu_base" />FROM TB_MULU WHERE  ACTIVE_FLAG = 1 AND ROW_ID = #{rowId} 
+	</select>
+   
+   <!-- 这就是逻辑删除，前边的方法执行的是 删除，  但到了 mapper文件我们执行的是  update 修改标签 -->
+	<update id="delete" parameterType="Mulu">
+	  UPDATE TB_MULU SET ACTIVE_FLAG = 0 WHERE ROW_ID = #{rowId}
+	</update>
+   
+  </mapper> 

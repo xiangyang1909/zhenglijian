@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="cacheEnabled" value="true" />
+		<setting name="lazyLoadingEnabled" value="true" />
+		<setting name="multipleResultSetsEnabled" value="true" />
+		<setting name="useColumnLabel" value="true" />
+		<setting name="useGeneratedKeys" value="false" />
+		<setting name="autoMappingBehavior" value="PARTIAL" />
+		<setting name="defaultExecutorType" value="SIMPLE" /><!-- SIMPLE REUSE BATCH -->
+		<!-- <setting name="defaultExecutorType" value="BATCH" /> -->
+		<setting name="defaultStatementTimeout" value="25000" />
+		<setting name="safeRowBoundsEnabled" value="false" />
+		
+		<!--截止我们做的第一个项目为止，  我们所关心到的，就是有一个  “启动自动映射”和“打印日志”  -->
+		<!-- 而且。我们的打印日志， 等到项目开发好以后，  上线无误后，基本就可以不用到它了 -->
+		<!-- 启动自动映射        我们定义的属性            userName  一定要对应数据库的    USER_NAME -->
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+		<setting name="localCacheScope" value="SESSION" />
+		<!-- <setting name="jdbcTypeForNull" value="OTHER" /> -->
+		<setting name="jdbcTypeForNull" value="NULL" />
+		<setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString" />
+		<!-- 打印sql日志 -->
+		<setting name="logImpl" value="STDOUT_LOGGING" />
+	</settings>
+</configuration>
